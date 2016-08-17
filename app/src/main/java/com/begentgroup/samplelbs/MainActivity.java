@@ -1,6 +1,7 @@
 package com.begentgroup.samplelbs;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,6 +12,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -19,6 +21,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -47,8 +50,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         messageView = (TextView) findViewById(R.id.text_message);
-        keywordView = (EditText)findViewById(R.id.edit_keyword);
-        listView = (ListView)findViewById(R.id.listView);
+        keywordView = (EditText) findViewById(R.id.edit_keyword);
+        listView = (ListView) findViewById(R.id.listView);
         mAdapter = new ArrayAdapter<Address>(this, android.R.layout.simple_list_item_1);
         listView.setAdapter(mAdapter);
 
@@ -67,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
             requestLocationPermission();
         }
 
-        Button btn = (Button)findViewById(R.id.btn_convert);
+        Button btn = (Button) findViewById(R.id.btn_convert);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -75,6 +78,22 @@ public class MainActivity extends AppCompatActivity {
                 if (!TextUtils.isEmpty(keyword)) {
                     convertAddressToLocation(keyword);
                 }
+            }
+        });
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                Address address = (Address) listView.getItemAtPosition(position);
+                float radius = 100;
+                long expired = System.currentTimeMillis() + 24 * 60 * 60 * 1000;
+                Intent intent = new Intent(MainActivity.this, ProximityService.class);
+                intent.setData(Uri.parse("myscheme://" + getPackageName() + "/" + id));
+                intent.putExtra("address", address);
+                PendingIntent pi = PendingIntent.getService(MainActivity.this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                mLM.addProximityAlert(address.getLatitude(), address.getLongitude(), radius, expired, pi);
             }
         });
     }
