@@ -4,9 +4,11 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -29,7 +31,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         messageView = (TextView) findViewById(R.id.text_message);
+
         mLM = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+        criteria.setPowerRequirement(Criteria.POWER_HIGH);
+        criteria.setCostAllowed(true);
+        criteria.setAltitudeRequired(false);
+        criteria.setBearingRequired(false);
+        criteria.setSpeedRequired(false);
+
+        mProvider = mLM.getBestProvider(criteria, true);
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestLocationPermission();
         }
@@ -80,17 +93,17 @@ public class MainActivity extends AppCompatActivity {
 
         Location location = mLM.getLastKnownLocation(mProvider);
         if (location != null) {
-
+            displayLocation(location);
         }
         mLM.requestLocationUpdates(mProvider, 2000, 5, mListener);
-
+//        mLM.requestSingleUpdate(mProvider, mListener, null);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         mLM.removeUpdates(mListener);
@@ -107,17 +120,21 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onStatusChanged(String s, int i, Bundle bundle) {
+        public void onStatusChanged(String provider, int status, Bundle bundle) {
+            switch (status) {
+                case LocationProvider.AVAILABLE :
+                case LocationProvider.TEMPORARILY_UNAVAILABLE :
+                case LocationProvider.OUT_OF_SERVICE:
+            }
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
 
         }
 
         @Override
-        public void onProviderEnabled(String s) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String s) {
+        public void onProviderDisabled(String provider) {
 
         }
     };
