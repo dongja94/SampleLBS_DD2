@@ -1,13 +1,15 @@
 package com.begentgroup.samplelbs;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
@@ -24,25 +26,30 @@ public class TMapActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tmap);
-        mLM = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        mapView = (TMapView)findViewById(R.id.map_view);
-        new AsyncTask<String, Integer, Boolean>(){
+        mLM = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        mapView = (TMapView) findViewById(R.id.map_view);
+        mapView.setOnApiKeyListener(new TMapView.OnApiKeyListenerCallback() {
             @Override
-            protected Boolean doInBackground(String... strings) {
-                mapView.setSKPMapApiKey("2bc7afe3-fc89-3125-b699-b9fb7cfe2fae");
-                mapView.setLanguage(TMapView.LANGUAGE_KOREAN);
-                return true;
+            public void SKPMapApikeySucceed() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setupMap();
+                    }
+                });
             }
 
             @Override
-            protected void onPostExecute(Boolean aBoolean) {
-                super.onPostExecute(aBoolean);
-                setupMap();
+            public void SKPMapApikeyFailed(String s) {
+
             }
-        }.execute();
+        });
+        mapView.setSKPMapApiKey("2bc7afe3-fc89-3125-b699-b9fb7cfe2fae");
+        mapView.setLanguage(TMapView.LANGUAGE_KOREAN);
     }
 
     boolean isInitialized = false;
+
     private void setupMap() {
         isInitialized = true;
         mapView.setMapType(TMapView.MAPTYPE_STANDARD);
@@ -59,6 +66,9 @@ public class TMapActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
         Location location = mLM.getLastKnownLocation(mProvider);
         if (location != null) {
             mListener.onLocationChanged(location);
@@ -69,6 +79,9 @@ public class TMapActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
         mLM.removeUpdates(mListener);
     }
 
