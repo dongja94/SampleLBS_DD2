@@ -34,7 +34,12 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".GoogleLocationActivity"></activity>
+        <activity android:name=".GoogleLocationActivity" />
+
+        <service
+            android:name=".GeofenceService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
