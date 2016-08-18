@@ -4,7 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.PointF;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationListener;
@@ -20,11 +20,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import com.skp.Tmap.TMapData;
 import com.skp.Tmap.TMapMarkerItem;
 import com.skp.Tmap.TMapPOIItem;
 import com.skp.Tmap.TMapPoint;
+import com.skp.Tmap.TMapPolyLine;
 import com.skp.Tmap.TMapView;
 
 import java.util.ArrayList;
@@ -40,10 +43,14 @@ public class TMapActivity extends AppCompatActivity {
     ListView listView;
     ArrayAdapter<POI> mAdapter;
 
+    TMapPoint start, end;
+    RadioGroup typeView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tmap);
+        typeView = (RadioGroup)findViewById(R.id.group_type);
         keywordView = (EditText)findViewById(R.id.edit_keyword);
         listView = (ListView)findViewById(R.id.listView);
         mAdapter = new ArrayAdapter<POI>(this, android.R.layout.simple_list_item_1);
@@ -92,6 +99,40 @@ public class TMapActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 POI poi = (POI)listView.getItemAtPosition(position);
                 moveMap(poi.item.getPOIPoint().getLatitude(), poi.item.getPOIPoint().getLongitude());
+            }
+        });
+
+        btn = (Button)findViewById(R.id.btn_route);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (start != null && end != null) {
+                    searchRoute(start, end);
+                    start = end = null;
+                } else {
+                    Toast.makeText(TMapActivity.this, "start or end is null", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+    }
+
+    private void searchRoute(TMapPoint start, TMapPoint end) {
+        TMapData data = new TMapData();
+        data.findPathData(start, end, new TMapData.FindPathDataListenerCallback() {
+            @Override
+            public void onFindPathData(final TMapPolyLine path) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        path.setLineWidth(5);
+                        path.setLineColor(Color.RED);
+                        mapView.addTMapPath(path);
+                        Bitmap s = ((BitmapDrawable)ContextCompat.getDrawable(TMapActivity.this, android.R.drawable.ic_input_delete)).getBitmap();
+                        Bitmap e = ((BitmapDrawable)ContextCompat.getDrawable(TMapActivity.this, android.R.drawable.ic_input_get)).getBitmap();
+                        mapView.setTMapPathIcon(s, e);
+                    }
+                });
             }
         });
     }
@@ -173,21 +214,21 @@ public class TMapActivity extends AppCompatActivity {
             moveMap(cacheLocation.getLatitude(), cacheLocation.getLongitude());
             setMyLocation(cacheLocation.getLatitude(), cacheLocation.getLongitude());
         }
-        mapView.setOnClickListenerCallBack(new TMapView.OnClickListenerCallback() {
-            @Override
-            public boolean onPressEvent(ArrayList<TMapMarkerItem> arrayList, ArrayList<TMapPOIItem> arrayList1, TMapPoint tMapPoint, PointF pointF) {
-                return false;
-            }
-
-            @Override
-            public boolean onPressUpEvent(ArrayList<TMapMarkerItem> arrayList, ArrayList<TMapPOIItem> arrayList1, TMapPoint tMapPoint, PointF pointF) {
-                return false;
-            }
-        });
         mapView.setOnCalloutRightButtonClickListener(new TMapView.OnCalloutRightButtonClickCallback() {
             @Override
-            public void onCalloutRightButton(TMapMarkerItem tMapMarkerItem) {
-
+            public void onCalloutRightButton(TMapMarkerItem marker) {
+                String message = null;
+                switch (typeView.getCheckedRadioButtonId()) {
+                    case R.id.radio_start :
+                        start = marker.getTMapPoint();
+                        message = "start";
+                        break;
+                    case R.id.radio_end :
+                        end = marker.getTMapPoint();
+                        message = "end";
+                        break;
+                }
+                Toast.makeText(TMapActivity.this, message + " setting", Toast.LENGTH_SHORT).show();
             }
         });
     }
