@@ -13,9 +13,15 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
 
+import com.skp.Tmap.TMapData;
 import com.skp.Tmap.TMapMarkerItem;
 import com.skp.Tmap.TMapPOIItem;
 import com.skp.Tmap.TMapPoint;
@@ -30,10 +36,19 @@ public class TMapActivity extends AppCompatActivity {
     LocationManager mLM;
     String mProvider = LocationManager.GPS_PROVIDER;
 
+    EditText keywordView;
+    ListView listView;
+    ArrayAdapter<POI> mAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tmap);
+        keywordView = (EditText)findViewById(R.id.edit_keyword);
+        listView = (ListView)findViewById(R.id.listView);
+        mAdapter = new ArrayAdapter<POI>(this, android.R.layout.simple_list_item_1);
+        listView.setAdapter(mAdapter);
+
         mLM = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         mapView = (TMapView) findViewById(R.id.map_view);
         mapView.setOnApiKeyListener(new TMapView.OnApiKeyListenerCallback() {
@@ -63,8 +78,68 @@ public class TMapActivity extends AppCompatActivity {
                 addMarker(point.getLatitude(), point.getLongitude(), "My Marker");
             }
         });
+
+        btn = (Button)findViewById(R.id.btn_search);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                searchPOI();
+            }
+        });
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                POI poi = (POI)listView.getItemAtPosition(position);
+                moveMap(poi.item.getPOIPoint().getLatitude(), poi.item.getPOIPoint().getLongitude());
+            }
+        });
     }
 
+    private void searchPOI() {
+        TMapData data = new TMapData();
+        String keyword = keywordView.getText().toString();
+        if (!TextUtils.isEmpty(keyword)) {
+            data.findAllPOI(keyword, new TMapData.FindAllPOIListenerCallback() {
+                @Override
+                public void onFindAllPOI(final ArrayList<TMapPOIItem> arrayList) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mapView.removeAllMarkerItem();
+                            mAdapter.clear();
+
+                            for (TMapPOIItem poi : arrayList) {
+                                addMarker(poi);
+                                mAdapter.add(new POI(poi));
+                            }
+
+                            if (arrayList.size() > 0) {
+                                TMapPOIItem poi = arrayList.get(0);
+                                moveMap(poi.getPOIPoint().getLatitude(), poi.getPOIPoint().getLongitude());
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    public void addMarker(TMapPOIItem poi) {
+        TMapMarkerItem item = new TMapMarkerItem();
+        item.setTMapPoint(poi.getPOIPoint());
+        Bitmap icon = ((BitmapDrawable)ContextCompat.getDrawable(this, android.R.drawable.ic_input_add)).getBitmap();
+        item.setIcon(icon);
+        item.setPosition(0.5f, 1);
+        item.setCalloutTitle(poi.getPOIName());
+        item.setCalloutSubTitle(poi.getPOIContent());
+        Bitmap left = ((BitmapDrawable)ContextCompat.getDrawable(this, android.R.drawable.ic_dialog_alert)).getBitmap();
+        item.setCalloutLeftImage(left);
+        Bitmap right = ((BitmapDrawable)ContextCompat.getDrawable(this, android.R.drawable.ic_input_get)).getBitmap();
+        item.setCalloutRightButtonImage(right);
+        item.setCanShowCallout(true);
+        mapView.addMarkerItem(poi.getPOIID(), item);
+    }
     private void addMarker(double lat, double lng, String title) {
         TMapMarkerItem item = new TMapMarkerItem();
         TMapPoint point = new TMapPoint(lat, lng);

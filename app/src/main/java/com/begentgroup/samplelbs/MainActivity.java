@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayAdapter<Address> mAdapter;
     EditText keywordView;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

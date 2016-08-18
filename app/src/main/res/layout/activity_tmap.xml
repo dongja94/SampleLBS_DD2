@@ -23,9 +23,39 @@
             android:id="@+id/btn_add_marker" />
     </LinearLayout>
 
-    <com.skp.Tmap.TMapView
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/map_view" />
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/edit_keyword"
+            android:layout_weight="1" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search"
+            android:id="@+id/btn_search" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.skp.Tmap.TMapView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/map_view" />
+
+        <ListView
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:id="@+id/listView"
+            android:layout_gravity="left|top" />
+    </FrameLayout>
 
 </LinearLayout>
