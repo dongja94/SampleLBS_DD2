@@ -149,6 +149,8 @@ public class GoogleMapActivity extends AppCompatActivity implements
         map.setOnMarkerClickListener(this);
         map.setOnInfoWindowClickListener(this);
         map.setOnMarkerDragListener(this);
+
+        map.setInfoWindowAdapter(new MyInfoWindow(this, poiResolver));
     }
 
     @Override
@@ -179,13 +181,13 @@ public class GoogleMapActivity extends AppCompatActivity implements
     @Override
     public boolean onMarkerClick(final Marker marker) {
         Toast.makeText(this, marker.getTitle(), Toast.LENGTH_SHORT).show();
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                marker.showInfoWindow();
-            }
-        }, 2000);
-        return true;
+//        mHandler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                marker.showInfoWindow();
+//            }
+//        }, 2000);
+        return false;
     }
 
     @Override
