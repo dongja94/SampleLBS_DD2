@@ -2,21 +2,31 @@ package com.begentgroup.samplelbs.data;
 
 public class POI {
     private String detailBizName;
+    private String detailInfoFlag;
     private String lowerAddrName;
     private String frontLon;
-    private String noorLon;
-    private String middleBizName;
-    private String noorLat;
-    private String firstNo;
+    private String roadName;
+    private String bizName;
     private String lowerBizName;
-    private String upperBizName;
-    private String name;
     private String upperAddrName;
     private String frontLat;
     private String id;
     private String radius;
     private String rpFlag;
     private String middleAddrName;
+    private String detailAddrName;
+    private String secondNo;
+    private String telNo;
+    private String secondBuildNo;
+    private String noorLon;
+    private String middleBizName;
+    private String noorLat;
+    private String firstBuildNo;
+    private String firstNo;
+    private String upperBizName;
+    private String name;
+    private String parkFlag;
+    private String desc;
 
     private Double latitude = null;
     private Double longitude = null;
@@ -35,17 +45,20 @@ public class POI {
         return longitude;
     }
 
-    @Override
-    public String toString() {
-        return name;
-    }
-
     public String getDetailBizName() {
         return this.detailBizName;
     }
 
     public void setDetailBizName(String detailBizName) {
         this.detailBizName = detailBizName;
+    }
+
+    public String getDetailInfoFlag() {
+        return this.detailInfoFlag;
+    }
+
+    public void setDetailInfoFlag(String detailInfoFlag) {
+        this.detailInfoFlag = detailInfoFlag;
     }
 
     public String getLowerAddrName() {
@@ -64,36 +77,20 @@ public class POI {
         this.frontLon = frontLon;
     }
 
-    public String getNoorLon() {
-        return this.noorLon;
+    public String getRoadName() {
+        return this.roadName;
     }
 
-    public void setNoorLon(String noorLon) {
-        this.noorLon = noorLon;
+    public void setRoadName(String roadName) {
+        this.roadName = roadName;
     }
 
-    public String getMiddleBizName() {
-        return this.middleBizName;
+    public String getBizName() {
+        return this.bizName;
     }
 
-    public void setMiddleBizName(String middleBizName) {
-        this.middleBizName = middleBizName;
-    }
-
-    public String getNoorLat() {
-        return this.noorLat;
-    }
-
-    public void setNoorLat(String noorLat) {
-        this.noorLat = noorLat;
-    }
-
-    public String getFirstNo() {
-        return this.firstNo;
-    }
-
-    public void setFirstNo(String firstNo) {
-        this.firstNo = firstNo;
+    public void setBizName(String bizName) {
+        this.bizName = bizName;
     }
 
     public String getLowerBizName() {
@@ -102,22 +99,6 @@ public class POI {
 
     public void setLowerBizName(String lowerBizName) {
         this.lowerBizName = lowerBizName;
-    }
-
-    public String getUpperBizName() {
-        return this.upperBizName;
-    }
-
-    public void setUpperBizName(String upperBizName) {
-        this.upperBizName = upperBizName;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getUpperAddrName() {
@@ -166,5 +147,109 @@ public class POI {
 
     public void setMiddleAddrName(String middleAddrName) {
         this.middleAddrName = middleAddrName;
+    }
+
+    public String getDetailAddrName() {
+        return this.detailAddrName;
+    }
+
+    public void setDetailAddrName(String detailAddrName) {
+        this.detailAddrName = detailAddrName;
+    }
+
+    public String getSecondNo() {
+        return this.secondNo;
+    }
+
+    public void setSecondNo(String secondNo) {
+        this.secondNo = secondNo;
+    }
+
+    public String getTelNo() {
+        return this.telNo;
+    }
+
+    public void setTelNo(String telNo) {
+        this.telNo = telNo;
+    }
+
+    public String getSecondBuildNo() {
+        return this.secondBuildNo;
+    }
+
+    public void setSecondBuildNo(String secondBuildNo) {
+        this.secondBuildNo = secondBuildNo;
+    }
+
+    public String getNoorLon() {
+        return this.noorLon;
+    }
+
+    public void setNoorLon(String noorLon) {
+        this.noorLon = noorLon;
+    }
+
+    public String getMiddleBizName() {
+        return this.middleBizName;
+    }
+
+    public void setMiddleBizName(String middleBizName) {
+        this.middleBizName = middleBizName;
+    }
+
+    public String getNoorLat() {
+        return this.noorLat;
+    }
+
+    public void setNoorLat(String noorLat) {
+        this.noorLat = noorLat;
+    }
+
+    public String getFirstBuildNo() {
+        return this.firstBuildNo;
+    }
+
+    public void setFirstBuildNo(String firstBuildNo) {
+        this.firstBuildNo = firstBuildNo;
+    }
+
+    public String getFirstNo() {
+        return this.firstNo;
+    }
+
+    public void setFirstNo(String firstNo) {
+        this.firstNo = firstNo;
+    }
+
+    public String getUpperBizName() {
+        return this.upperBizName;
+    }
+
+    public void setUpperBizName(String upperBizName) {
+        this.upperBizName = upperBizName;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getParkFlag() {
+        return this.parkFlag;
+    }
+
+    public void setParkFlag(String parkFlag) {
+        this.parkFlag = parkFlag;
+    }
+
+    public String getDesc() {
+        return this.desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
     }
 }
