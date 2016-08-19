@@ -3,6 +3,8 @@ package com.begentgroup.samplelbs;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -19,13 +21,18 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.begentgroup.samplelbs.data.CarFeature;
+import com.begentgroup.samplelbs.data.CarRouteInfo;
+import com.begentgroup.samplelbs.data.Geometry;
 import com.begentgroup.samplelbs.data.POI;
 import com.begentgroup.samplelbs.data.POIResult;
 import com.begentgroup.samplelbs.manager.NetworkManager;
 import com.begentgroup.samplelbs.manager.NetworkRequest;
 import com.begentgroup.samplelbs.request.POISearchRequest;
+import com.begentgroup.samplelbs.request.RouteRequest;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -37,6 +44,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
 import java.util.HashMap;
@@ -59,11 +67,13 @@ public class GoogleMapActivity extends AppCompatActivity implements
 
     Map<POI,Marker> markerResolver = new HashMap<>();
     Map<Marker, POI> poiResolver = new HashMap<>();
+    RadioGroup typeView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_google_map);
+        typeView = (RadioGroup)findViewById(R.id.group_type);
         listView = (ListView)findViewById(R.id.listView);
         mAdapter = new ArrayAdapter<POI>(this, android.R.layout.simple_list_item_1);
         listView.setAdapter(mAdapter);
@@ -118,6 +128,55 @@ public class GoogleMapActivity extends AppCompatActivity implements
                 });
             }
         });
+
+        btn = (Button)findViewById(R.id.btn_capture);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                map.snapshot(new GoogleMap.SnapshotReadyCallback() {
+                    @Override
+                    public void onSnapshotReady(Bitmap bitmap) {
+                        // save file...
+                    }
+                });
+            }
+        });
+
+        btn = (Button)findViewById(R.id.btn_route);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (start != null && end != null) {
+                    RouteRequest request = new RouteRequest(GoogleMapActivity.this,
+                            start.getLatitude(), start.getLongitude(), end.getLatitude(), end.getLongitude());
+                    NetworkManager.getInstance().getNetworkData(request, new NetworkManager.OnResultListener<CarRouteInfo>() {
+                        @Override
+                        public void onSuccess(NetworkRequest<CarRouteInfo> request, CarRouteInfo result) {
+                            PolylineOptions options = new PolylineOptions();
+                            for (CarFeature feature : result.features) {
+                                Geometry geometry = feature.geometry;
+                                if (geometry.type.equals("LineString")) {
+                                    for (int i = 0 ; i < geometry.coordinates.length; i+=2) {
+                                        double lat = geometry.coordinates[i+1];
+                                        double lng = geometry.coordinates[i];
+                                        options.add(new LatLng(lat, lng));
+                                    }
+                                }
+                            }
+                            options.color(Color.RED);
+                            options.width(5);
+                            map.addPolyline(options);
+                            start = end = null;
+                        }
+
+                        @Override
+                        public void onFail(NetworkRequest<CarRouteInfo> request, int errorCode, String errorMessage, Throwable e) {
+
+                        }
+                    });
+                }
+            }
+        });
     }
 
     private void clear(){
@@ -169,11 +228,21 @@ public class GoogleMapActivity extends AppCompatActivity implements
         Log.i("GoogleMapActivity", "lat : " + latLng.latitude + ", lng : " + latLng.longitude );
     }
 
+    POI start, end;
+
     @Override
     public void onInfoWindowClick(Marker marker) {
         marker.hideInfoWindow();
         POI poi = poiResolver.get(marker);
         Log.i("GoogleMapActivity", "addr : " + poi.getUpperAddrName());
+        switch (typeView.getCheckedRadioButtonId()) {
+            case R.id.radio_start :
+                start = poi;
+                break;
+            case R.id.radio_end :
+                end = poi;
+                break;
+        }
     }
 
     Handler mHandler = new Handler(Looper.getMainLooper());
