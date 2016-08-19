@@ -41,7 +41,7 @@ public class TMapActivity extends AppCompatActivity {
 
     EditText keywordView;
     ListView listView;
-    ArrayAdapter<POI> mAdapter;
+    ArrayAdapter<PointOfInterest> mAdapter;
 
     TMapPoint start, end;
     RadioGroup typeView;
@@ -53,7 +53,7 @@ public class TMapActivity extends AppCompatActivity {
         typeView = (RadioGroup)findViewById(R.id.group_type);
         keywordView = (EditText)findViewById(R.id.edit_keyword);
         listView = (ListView)findViewById(R.id.listView);
-        mAdapter = new ArrayAdapter<POI>(this, android.R.layout.simple_list_item_1);
+        mAdapter = new ArrayAdapter<PointOfInterest>(this, android.R.layout.simple_list_item_1);
         listView.setAdapter(mAdapter);
 
         mLM = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -97,7 +97,7 @@ public class TMapActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                POI poi = (POI)listView.getItemAtPosition(position);
+                PointOfInterest poi = (PointOfInterest)listView.getItemAtPosition(position);
                 moveMap(poi.item.getPOIPoint().getLatitude(), poi.item.getPOIPoint().getLongitude());
             }
         });
@@ -152,7 +152,7 @@ public class TMapActivity extends AppCompatActivity {
 
                             for (TMapPOIItem poi : arrayList) {
                                 addMarker(poi);
-                                mAdapter.add(new POI(poi));
+                                mAdapter.add(new PointOfInterest(poi));
                             }
 
                             if (arrayList.size() > 0) {
